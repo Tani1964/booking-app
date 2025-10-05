@@ -5,6 +5,13 @@ import (
 	"strings"
 )
 
+func validateUserInput(firstName string, lastName string, email string, userTickets uint, remainingTickets uint) (bool, bool, bool) {
+	isValidName := len(firstName) >= 2 && len(lastName) >= 2
+	isValidEmail := strings.Contains(email, "@")
+	isValidTicketNumber := userTickets > 0 && userTickets <= remainingTickets
+	return isValidName, isValidEmail, isValidTicketNumber
+}
+
 func main() {
 	conferenceName := "Tanisty Conference"
 	const conferenceTickets = 50
@@ -16,7 +23,7 @@ func main() {
 	fmt.Printf("We have a total of %v tickets and %v are still available \n", conferenceTickets, remainingTickets)
 	fmt.Println("Get your tickets here to attend")
 
-	for {
+	for remainingTickets > 0 && len(bookings) < conferenceTickets {
 		var firstName string
 		var lastName string
 		var email string
@@ -33,6 +40,21 @@ func main() {
 
 		fmt.Print("Enter your number of tickets: ")
 		fmt.Scan(&userTickets)
+
+		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets, remainingTickets)
+
+		if !isValidName {
+			fmt.Println("First name or last name you entered is too short")
+			continue
+		}
+		if !isValidEmail {
+			fmt.Println("Email address you entered doesn't contain @ sign")
+			continue
+		}
+		if !isValidTicketNumber {
+			fmt.Println("Number of tickets you entered is invalid")
+			continue
+		}
 
 		if userTickets <= remainingTickets {
 			remainingTickets -= userTickets
@@ -58,9 +80,14 @@ func main() {
 				fmt.Println("Our conference is booked out. Come back next year.")
 				break
 			}
+		} else if userTickets == remainingTickets {
+			fmt.Printf("You have booked the last %v tickets. Our conference is booked out. Come back next year.\n", userTickets)
+			remainingTickets -= userTickets
+			bookings = append(bookings, firstName+" "+lastName)
+			fmt.Println(bookings)
+			break
 		} else {
 			fmt.Printf("We only have %v tickets remaining, so you can't book %v tickets \n", remainingTickets, userTickets)
-			continue
 		}
 	}
 
